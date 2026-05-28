@@ -7,15 +7,6 @@ const connectDB = require("./config/db");
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
-
-// Route files
-const tourRoutes = require("./routes/tourRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
-const userRoutes = require("./routes/userRoutes");
-const carBookingRoutes = require("./routes/carBookingRoutes");
-
 const app = express();
 
 // Body parser middleware
@@ -23,10 +14,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+// Connect DB before handling requests (lazy connection for Vercel)
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
 // API Routes
+const tourRoutes = require("./routes/tourRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
+const userRoutes = require("./routes/userRoutes");
+const carBookingRoutes = require("./routes/carBookingRoutes");
+
 app.use("/api/tours", tourRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/users", userRoutes);
